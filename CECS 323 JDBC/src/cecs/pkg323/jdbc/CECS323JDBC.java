@@ -41,6 +41,7 @@ public class CECS323JDBC {
         	    String name = rs.getString("groupName");
         	    System.out.println(name);
         	}    		
+                stmt.close();
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -50,22 +51,35 @@ public class CECS323JDBC {
      * COMMAND 2
      */
     public static void listWritingData() {
+        System.out.print("Please enter writing group name :");
         String str = in.nextLine();
-        String query = "SELECT * FROM writinggroups WHERE groupName = '" + str + "'";
+        String query = "SELECT * FROM writinggroups NATURAL JOIN books NATURAL JOIN publishers WHERE groupName = '" + str + "'";
+        int count = 0;
 
         try {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
 
-                System.out.print("Please enter writing group name :");
                 while (rs.next()) {
+                	if (count == 0) {
                         String groupName = rs.getString("groupName");
                         String headWriter = rs.getString("headWriter");
                         int yearFormed = rs.getInt("yearFormed");
                         String subject = rs.getString("subject");
-
-                        System.out.printf("groupName = %s, headWriter = %s, yearFormed = %d, subject = %s\n", groupName, headWriter, yearFormed, subject);
+                        System.out.printf("Writing Group: groupName = %s, headWriter = %s, yearFormed = %d, subject = %s\n", groupName, headWriter, yearFormed, subject); 
+                        count++;
+                	}
+                    String name = rs.getString("pubName");
+                    String address = rs.getString("pubAddress");
+                    String phone = rs.getString("pubPhone");
+                    String email = rs.getString("pubEmail");
+                    String title = rs.getString("bookTitle");
+                    int year = rs.getInt("yearPublished");
+                    int pages = rs.getInt("numberPages");
+                    System.out.printf("Book: bookTitle = %s, yearPublished = %d, numberPages = %d\n", title, year, pages);                	
+                    System.out.printf("Publisher: pubName = %s, pubAddress = %s, pubPhone = %s, pubEmail = %s\n", name, address, phone, email);                		
                 }
+                stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,6 +98,7 @@ public class CECS323JDBC {
         	    String name = rs.getString("pubName");
         	    System.out.println(name);
         	}    		
+                stmt.close();
     	} catch (Exception e) {
     		e.printStackTrace();
     	}    	
@@ -93,22 +108,37 @@ public class CECS323JDBC {
      * COMMAND 4
      */
     public static void listPublisherData() {
+        System.out.print("Please enter the publisher name :");
         String str = in.nextLine();
-        String query = "SELECT * FROM publishers WHERE pubName = '" + str + "'";
+        String query = "SELECT * FROM publishers NATURAL JOIN books NATURAL JOIN writinggroups WHERE pubName = '" + str + "'";
+        int count = 0;
 
         try {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
 
-                System.out.print("Please enter the publisher name :");
                 while (rs.next()) {
+                	if (count == 0) {
                         String name = rs.getString("pubName");
                         String address = rs.getString("pubAddress");
                         String phone = rs.getString("pubPhone");
                         String email = rs.getString("pubEmail");
+                        System.out.printf("Publisher: pubName = %s, pubAddress = %s, pubPhone = %s, pubEmail = %s\n", name, address, phone, email);                		
+                        count++;
+                	}
+                    String title = rs.getString("bookTitle");
+                    int year = rs.getInt("yearPublished");
+                    int pages = rs.getInt("numberPages");
+                    String groupName = rs.getString("groupName");
+                    String headWriter = rs.getString("headWriter");
+                    int yearFormed = rs.getInt("yearFormed");
+                    String subject = rs.getString("subject");
 
-                        System.out.printf("pubName = %s, pubAddress = %s, pubPhone = %s, pubEmail = %s\n", name, address, phone, email);
+                    System.out.printf("Book: bookTitle = %s, yearPublished = %d, numberPages = %d\n", title, year, pages);
+                    System.out.printf("Writing Group: groupName = %s, headWriter = %s, yearFormed = %d, subject = %s\n", 
+                    		groupName, headWriter, yearFormed, subject);
                 }
+                stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,6 +157,7 @@ public class CECS323JDBC {
         	    String name = rs.getString("bookTitle");
         	    System.out.println(name);
         	}    		
+                stmt.close();
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -136,23 +167,35 @@ public class CECS323JDBC {
      * COMMAND 6
      */
     public static void listBookData() {
+        System.out.print("Please enter the book title :");
         String str = in.nextLine();
-        String query = "SELECT * FROM books WHERE bookTitle = '" + str + "'";
+        String query = "SELECT * FROM books NATURAL JOIN writinggroups NATURAL JOIN publishers WHERE bookTitle = '" + str + "'";
 
         try {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
 
-                System.out.print("Please enter the book title :");
                 while (rs.next()) {
                         String title = rs.getString("bookTitle");
                         int year = rs.getInt("yearPublished");
                         int pages = rs.getInt("numberPages");
                         String pubName = rs.getString("pubName");
                         String groupName = rs.getString("groupName");
+                        String address = rs.getString("pubAddress");
+                        String phone = rs.getString("pubPhone");
+                        String email = rs.getString("pubEmail");
+                        String headWriter = rs.getString("headWriter");
+                        int yearFormed = rs.getInt("yearFormed");
+                        String subject = rs.getString("subject");
+                        
 
-                        System.out.printf("bookTitle = %s, yearPublished = %d, numberPages = %d, pubName = %s, groupName = %s\n", title, year, pages, pubName, groupName);
+                        System.out.printf("Book: bookTitle = %s, yearPublished = %d, numberPages = %d\n", title, year, pages);
+                        System.out.printf("Publisher: pubName = %s, pubAddress = %s, pubPhone = %s, pubEmail = %s\n", 
+                        		pubName, address, phone, email);
+                        System.out.printf("Writing Group: groupName = %s, headWriter = %s, yearFormed = %d, subject = %s\n", 
+                        		groupName, headWriter, yearFormed, subject);
                 }
+                stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,7 +205,31 @@ public class CECS323JDBC {
      * COMMAND 7
      */
     public static void insertBook() {
-    	
+        try {
+            System.out.println("Book Creation:");
+            System.out.print("Title :");
+            String title = in.nextLine();
+            System.out.print("Year of publication :");
+            int year = in.nextInt();
+            in.nextLine();
+            System.out.print("number of pages :");
+            int pages = in.nextInt();
+            in.nextLine();
+            System.out.print("publisher name :");
+            String publisher = in.nextLine();
+            System.out.print("Writing group name :");
+            String group = in.nextLine();
+            Statement stmt = conn.createStatement();
+
+            String insertion = "INSERT INTO books(bookTitle, yearPublished, numberPages, pubName, groupName) values ('"
+                    + title + "', " + year + ", " + pages + ", '" + publisher + "', '" + group + "')";
+            stmt.execute(insertion);
+            System.out.println("Book as been inserted successfully !");
+            stmt.close();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -176,7 +243,19 @@ public class CECS323JDBC {
      * COMMAND 9
      */
     public static void removeBook() {
-    	
+    	try {
+        	System.out.println("Book removal: ");
+                System.out.print("Enter the book title to remove :");
+        	String title = in.nextLine();
+        	Statement stmt = conn.createStatement();
+        	String sql = "DELETE FROM books WHERE bookTitle='" + title + "'";
+        	
+        	stmt.execute(sql);
+    		System.out.println("Book successfully deleted !");
+    		stmt.close();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}    	
     }
     
     public static void main(String[] args) {
@@ -248,23 +327,3 @@ public class CECS323JDBC {
         }
     }    
 }
-
-
-/*
-stmt = conn.createStatement();
-String sql;
-sql = "SELECT au_id, au_fname, au_lname, phone FROM Authors";
-ResultSet rs = stmt.executeQuery(sql);
-
-while (rs.next()) {
-    String id = rs.getString("au_id");
-    String phone = rs.getString("phone");
-    String first = rs.getString("au_fname");
-    String last = rs.getString("au_lname");
-
-    System.out.printf(displayFormat,
-            dispNull(id), dispNull(first), dispNull(last), dispNull(phone));
-}
-rs.close();
-stmt.close();
-conn.close(); */
