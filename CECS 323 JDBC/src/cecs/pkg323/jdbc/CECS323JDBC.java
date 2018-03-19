@@ -11,6 +11,8 @@ public class CECS323JDBC {
     static String DBNAME;
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     static String DB_URL = "jdbc:derby://localhost:1527/";
+    static Connection conn = null;
+    static Scanner in = null;
 
     public static void DisplayCommands() {
         System.out.println("Which command do you want to execute :\n"
@@ -30,42 +32,130 @@ public class CECS323JDBC {
      * COMMAND 1
      */
     public static void listWriting() {
-    	
+    	String query = "SELECT groupName FROM writinggroups";
+    	try {
+        	Statement stmt = conn.createStatement();
+           	ResultSet rs = stmt.executeQuery(query);
+
+        	while (rs.next()) {
+        	    String name = rs.getString("groupName");
+        	    System.out.println(name);
+        	}    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
     
     /**
      * COMMAND 2
      */
     public static void listWritingData() {
-    	
+        String str = in.nextLine();
+        String query = "SELECT * FROM writinggroups WHERE groupName = '" + str + "'";
+
+        try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+
+                System.out.print("Please enter writing group name :");
+                while (rs.next()) {
+                        String groupName = rs.getString("groupName");
+                        String headWriter = rs.getString("headWriter");
+                        int yearFormed = rs.getInt("yearFormed");
+                        String subject = rs.getString("subject");
+
+                        System.out.printf("groupName = %s, headWriter = %s, yearFormed = %d, subject = %s\n", groupName, headWriter, yearFormed, subject);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     /**
      * COMMAND 3
      */
     public static void listPublishers() {
-    	
+    	String query = "SELECT pubName FROM publishers";
+    	try {
+        	Statement stmt = conn.createStatement();
+           	ResultSet rs = stmt.executeQuery(query);
+
+        	while (rs.next()) {
+        	    String name = rs.getString("pubName");
+        	    System.out.println(name);
+        	}    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}    	
     }
     
     /**
      * COMMAND 4
      */
     public static void listPublisherData() {
-    	
+        String str = in.nextLine();
+        String query = "SELECT * FROM publishers WHERE pubName = '" + str + "'";
+
+        try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+
+                System.out.print("Please enter the publisher name :");
+                while (rs.next()) {
+                        String name = rs.getString("pubName");
+                        String address = rs.getString("pubAddress");
+                        String phone = rs.getString("pubPhone");
+                        String email = rs.getString("pubEmail");
+
+                        System.out.printf("pubName = %s, pubAddress = %s, pubPhone = %s, pubEmail = %s\n", name, address, phone, email);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     /**
      * COMMAND 5
      */
     public static void listBooks() {
-    	
+    	String query = "SELECT bookTitle FROM books";
+    	try {
+        	Statement stmt = conn.createStatement();
+           	ResultSet rs = stmt.executeQuery(query);
+
+        	while (rs.next()) {
+        	    String name = rs.getString("bookTitle");
+        	    System.out.println(name);
+        	}    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
     
     /**
      * COMMAND 6
      */
     public static void listBookData() {
-    	
+        String str = in.nextLine();
+        String query = "SELECT * FROM books WHERE bookTitle = '" + str + "'";
+
+        try {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+
+                System.out.print("Please enter the book title :");
+                while (rs.next()) {
+                        String title = rs.getString("bookTitle");
+                        int year = rs.getInt("yearPublished");
+                        int pages = rs.getInt("numberPages");
+                        String pubName = rs.getString("pubName");
+                        String groupName = rs.getString("groupName");
+
+                        System.out.printf("bookTitle = %s, yearPublished = %d, numberPages = %d, pubName = %s, groupName = %s\n", title, year, pages, pubName, groupName);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -90,7 +180,10 @@ public class CECS323JDBC {
     }
     
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
+        in = new Scanner(System.in);
+        int cmd = 0;
+        boolean loop = true; 
+
         System.out.print("Name of the database (not the user account): ");
         DBNAME = in.nextLine();
         System.out.print("Database user name: ");
@@ -98,21 +191,19 @@ public class CECS323JDBC {
         System.out.print("Database password: ");
         PASS = in.nextLine();
         DB_URL = DB_URL + DBNAME + ";user="+ USER + ";password=" + PASS;
-        Connection conn = null;
-        Statement stmt = null;
-        int cmd = 0;
-        boolean loop = true; 
 
+        
         try {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
 
             System.out.println("Connecting to database...");
-            conn = DriverManager.getConnection(DB_URL);
+            CECS323JDBC.conn = DriverManager.getConnection(DB_URL);
             System.out.println("Connection to database successfull");
             CECS323JDBC.DisplayCommands();
             while (loop) {
             	if (in.hasNextInt()) {
                 	cmd = in.nextInt();
+                	in.nextLine();
                 	
                 	switch (cmd) {
                 	case 1: CECS323JDBC.listWriting();
@@ -136,22 +227,17 @@ public class CECS323JDBC {
                 	case 10: loop = false;
                 			break;
                 	}            		
+                    CECS323JDBC.DisplayCommands();
             	} else {
             		System.out.println("Please enter an integer");
+            		in.next();
             	}
-                CECS323JDBC.DisplayCommands();
             }
         } catch (SQLException se) {
             se.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException se2) {
-            }
             try {
                 if (conn != null) {
                     conn.close();
