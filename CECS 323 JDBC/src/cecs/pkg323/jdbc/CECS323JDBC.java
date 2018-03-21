@@ -86,14 +86,17 @@ public class CECS323Project {
                         System.out.printf("%-30s%-30s%-15s%-20s\n", "Group Name", "Head Writer", "Year Formed", "Subject");
                         System.out.printf("%-30s%-30s%-15d%-20s\n", groupName, headWriter, yearFormed, dispNull(subject));
                         System.out.println("- Books by " + groupName);
-                        System.out.printf("%-50s%-20s%-15s%-20s\n", "Title", "Publication Year", "Pages", "Publisher");
+                        System.out.printf("%-50s%-20s%-15s%-20s%-50s%-20s%-30s\n", "Title", "Publication Year", "Pages", "Publisher", "Publisher Address", "Publisher Phone","Publisher Email");
                         count++;
                 	}
                     String name = rs.getString("pubName");
                     String title = rs.getString("bookTitle");
                     int year = rs.getInt("yearPublished");
                     int pages = rs.getInt("numberPages");
-                    System.out.printf("%-50s%-20d%-15d%-20s\n", title, year, pages, name);
+                    String add = rs.getString("pubAddress");
+                    String phone = rs.getString("pubPhone");
+                    String email = rs.getString("pubEmail");
+                    System.out.printf("%-50s%-20d%-15d%-20s%-50s%-20s%-30s\n", title, year, pages, name, add, phone, email);
                 }
                 stmt.close();
                 rs.close();
@@ -109,9 +112,8 @@ public class CECS323Project {
     public static void listPublishers() {
     	String query = "SELECT pubName FROM publishers";
     	try {
-        	PreparedStatement stmt;
-            stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
+        	Statement stmt = conn.createStatement();
+           	ResultSet rs = stmt.executeQuery(query);
 
         	while (rs.next()) {
         	    String name = rs.getString("pubName");
@@ -131,12 +133,13 @@ public class CECS323Project {
     public static void listPublisherData() {
         System.out.print("Please enter the publisher name: ");
         String str = in.nextLine();
-        String query = "SELECT * FROM publishers NATURAL JOIN books NATURAL JOIN writinggroups WHERE pubName = '" + str + "'";
+        String query = "SELECT * FROM publishers NATURAL JOIN books NATURAL JOIN writinggroups WHERE pubName = ?";
         int count = 0;
 
         try {
                 PreparedStatement stmt;
                 stmt = conn.prepareStatement(query);
+                stmt.setString(1, str);
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
@@ -148,15 +151,18 @@ public class CECS323Project {
                         System.out.printf("%-20s%-50s%-20s%-50s\n", "Publisher Name", "Address", "Phone", "Email");
                         System.out.printf("%-20s%-50s%-20s%-50s\n", name, address, phone, email);
                         System.out.println("- Books Published by " + name);
-                        System.out.printf("%-50s%-20s%-15s%-30s\n", "Title", "Publication Year", "Pages", "Writing Group");
+                        System.out.printf("%-50s%-20s%-15s%-30s%-30s%-15s%-20s\n", "Title", "Publication Year", "Pages", 
+                                "Writing Group", "Head Writer", "Year Formed", "Subject");
                         count++;
                 	}
                     String title = rs.getString("bookTitle");
                     int year = rs.getInt("yearPublished");
                     int pages = rs.getInt("numberPages");
                     String groupName = rs.getString("groupName");
-
-                    System.out.printf("%-50s%-20s%-15s%-30s\n", title, year, pages, groupName);
+                    String writer = rs.getString("headWriter");
+                    String sub = rs.getString("subject");
+                    int yearF = rs.getInt("yearFormed");
+                    System.out.printf("%-50s%-20s%-15s%-30s%-30s%-15d%-20s\n", title, year, pages, groupName, writer, yearF, sub);
                 }
                 stmt.close();
                 rs.close();
@@ -205,11 +211,24 @@ public class CECS323Project {
                         String title = rs.getString("bookTitle");
                         int year = rs.getInt("yearPublished");
                         int pages = rs.getInt("numberPages");
+                        
                         String pubName = rs.getString("pubName");
+                        String pubAddress = rs.getString("pubAddress");
+                        String pubPhone = rs.getString("pubPhone");
+                        String pubEmail = rs.getString("pubEmail");
+                        
                         String groupName = rs.getString("groupName");
+                        String subject = rs.getString("subject");
+                        String headWriter = rs.getString("headWriter");
+                        int yearF = rs.getInt("yearFormed");
 
-                        System.out.printf("%-50s%-20s%-10s%-20s%-20s\n", "Title", "Publication Year", "Pages", "Writing Group", "Publisher");
-                        System.out.printf("%-50s%-20d%-10d%-20s%-20s\n", title, year, pages, groupName, pubName);
+                        System.out.printf("%-50s%-20s%-10s%-20s%-20s%-15s%-20s%-20s%-50s%-20s%-50s\n", 
+                                "Title", "Publication Year", "Pages",
+                                "Writing Group", "Head Writer", "Year Formed", "Subject",
+                                "Publisher", "Publisher Address", "Publisher Phone","Publisher Email");
+                        System.out.printf("%-50s%-20d%-10d%-20s%-20s%-15d%-20s%-20s%-50s%-20s%-50s\n", title, year, pages, 
+                                groupName, headWriter, yearF, subject,
+                                pubName, pubAddress, pubPhone, pubEmail);
                 }
                 stmt.close();
                 rs.close();
