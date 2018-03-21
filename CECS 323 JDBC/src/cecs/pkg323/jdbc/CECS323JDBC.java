@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * @author Jeremy & Kristen
  */
-public class CECS323Project {
+public class CECS323JDBC {
     static String USER;
     static String PASS;
     static String DBNAME;
@@ -200,7 +200,9 @@ public class CECS323Project {
     public static void listBookData() {
         System.out.print("Please enter the book title: ");
         String str = in.nextLine();
-        String query = "SELECT * FROM books NATURAL JOIN writinggroups NATURAL JOIN publishers WHERE bookTitle = '" + str + "'";
+        System.out.print("Please enter the Group Name: ");
+        String str2 = in.nextLine();
+        String query = "SELECT * FROM books NATURAL JOIN writinggroups NATURAL JOIN publishers WHERE bookTitle = '" + str + "' AND groupName = '" + str2 + "'";
 
         try {
                 PreparedStatement stmt;
@@ -326,17 +328,21 @@ public class CECS323Project {
     	try {
                 System.out.print("Enter the book title to remove: ");
         	String title = in.nextLine();
+                System.out.print("Enter the group name of the book you want to remove: ");
+                String group = in.nextLine();
         	
                 PreparedStatement stmt;
-        	String sql = "DELETE FROM books WHERE bookTitle = ?";
+        	String sql = "DELETE FROM books WHERE bookTitle = ? AND groupName = ?";
                 stmt = conn.prepareStatement(sql);
                 stmt.setString(1, title);
+                stmt.setString(2, group);
                 
                 stmt.executeUpdate();
                 
     		System.out.println("Book successfully deleted !");
     		stmt.close();
     	} catch (Exception e) {
+//            System.out.println(e.toString());
     		e.printStackTrace();
     	}    	
     }
@@ -359,9 +365,9 @@ public class CECS323Project {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
 
             System.out.println("Connecting to database...");
-            CECS323Project.conn = DriverManager.getConnection(DB_URL);
+            CECS323JDBC.conn = DriverManager.getConnection(DB_URL);
             System.out.println("Connection to database successfull");
-            CECS323Project.DisplayCommands();
+            CECS323JDBC.DisplayCommands();
             while (loop) {
             	if (in.hasNextInt()) {
                 	cmd = in.nextInt();
@@ -369,29 +375,29 @@ public class CECS323Project {
                         System.out.println();
                 	
                 	switch (cmd) {
-                	case 1: CECS323Project.listWriting();
+                	case 1: CECS323JDBC.listWriting();
                 			break;
-                	case 2: CECS323Project.listWritingData();
+                	case 2: CECS323JDBC.listWritingData();
                 			break;
-                	case 3: CECS323Project.listPublishers();
+                	case 3: CECS323JDBC.listPublishers();
                 			break;
-                	case 4: CECS323Project.listPublisherData();
+                	case 4: CECS323JDBC.listPublisherData();
                 			break;
-                	case 5: CECS323Project.listBooks();
+                	case 5: CECS323JDBC.listBooks();
                 			break;
-                	case 6: CECS323Project.listBookData();
+                	case 6: CECS323JDBC.listBookData();
                 			break;
-                	case 7: CECS323Project.insertBook();
+                	case 7: CECS323JDBC.insertBook();
                 			break;
-                	case 8: CECS323Project.insertPublisher();
+                	case 8: CECS323JDBC.insertPublisher();
                 			break;
-                	case 9: CECS323Project.removeBook();
+                	case 9: CECS323JDBC.removeBook();
                 			break;
                 	case 10: loop = false;
                 			break;
                 	}
                     System.out.println();
-                    CECS323Project.DisplayCommands();
+                    CECS323JDBC.DisplayCommands();
             	} else {
             		System.out.println("Please enter an integer");
             		in.next();
